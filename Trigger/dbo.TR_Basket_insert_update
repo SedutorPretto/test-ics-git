@@ -1,0 +1,25 @@
+create or alter trigger dbo.TR_Basket_insert_update on dbo.Basket
+after insert, 
+      update
+as
+begin
+    declare @ID_SKU int;
+
+    select @ID_SKU = ID_SKU
+    from inserted;
+
+    if ((select count(*) from inserted where ID_SKU = @ID_SKU) >= 2)
+    begin
+        update b
+        set DiscountValue = Value * 0.05
+        from dbo.Basket b
+        inner join inserted i on i.ID = b.ID;
+    end
+    else
+    begin
+        update b
+        set DiscountValue = 0
+        from dbo.Basket b
+        inner join inserted i on i.ID = b.ID;
+    end
+end
