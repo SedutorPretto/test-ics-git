@@ -1,6 +1,0 @@
-create view dbo.vw_SKUPrice
-as
-select 
-    s.* 
-    ,dbo.udf_GetSKUPrice(s.ID) as PricePerUnit
-from dbo.SKU as s;
