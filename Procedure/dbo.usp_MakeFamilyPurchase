@@ -1,0 +1,24 @@
+create procedure dbo.usp_MakeFamilyPurchase
+    @FamilySurName VARCHAR(255)
+as
+begin
+    declare @TotalPurchase DECIMAL(18, 2);
+
+    -- Вычисляем общую сумму покупок для переданной семьи
+    select @TotalPurchase = sum(b.Value)
+    from dbo.Basket b
+      inner join dbo.Family f on f.ID = b.ID_Family
+    where f.SurName = @FamilySurName;
+
+    -- Проверяем существование семьи
+    if not exists (select 1 from dbo.Family where SurName = @FamilySurName)
+    begin
+        raiserror ('Семьи с такой фамилией не существует.', 16, 1);
+        return;
+    end;
+
+    -- Обновляем бюджет семьи
+    update dbo.Family
+    set BudgetValue = BudgetValue - @TotalPurchase
+    where SurName = @FamilySurName;
+end
